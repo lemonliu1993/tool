@@ -9,6 +9,11 @@ import java.util.Properties;
 /**
  * Created by lemoon on 2024/1/3 23:27
  */
+/**
+ * 功能1：从数据源获取数据库连接
+ * 功能2：从数据库获取到数据库连接后，绑定到本地线程（借助 ThreadLocal）
+ * 功能3：释放线程时和本地线程解除绑定
+ */
 public class JDBCUtils {
 
     // 将数据源对象设置为静态属性，保证大对象的单一实例
