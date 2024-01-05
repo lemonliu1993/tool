@@ -4,6 +4,7 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 
 import javax.sql.DataSource;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.util.Properties;
 
 /**
@@ -18,6 +19,11 @@ public class JDBCUtils {
 
     // 将数据源对象设置为静态属性，保证大对象的单一实例
     private static DataSource dataSource;
+
+    // 由于 ThreadLocal 对象需要作为绑定数据时 k-v 对中的 key，所以要保证唯一性
+    // 加 static 声明为静态资源即可保证唯一性
+    private static ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
+
 
     static {
 
