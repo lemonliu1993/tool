@@ -5,11 +5,13 @@ import com.alibaba.druid.pool.DruidDataSourceFactory;
 import javax.sql.DataSource;
 import java.io.InputStream;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 /**
  * Created by lemoon on 2024/1/3 23:27
  */
+
 /**
  * 功能1：从数据源获取数据库连接
  * 功能2：从数据库获取到数据库连接后，绑定到本地线程（借助 ThreadLocal）
@@ -44,6 +46,62 @@ public class JDBCUtils {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 工具方法：获取数据库连接并返回
+     *
+     * @return
+     */
+    public static Connection getConnection() {
+
+        Connection connection = null;
+
+        try {
+            // 1、尝试从当前线程检查是否存在已经绑定的 Connection 对象
+            connection = threadLocal.get();
+
+            // 2、检查 Connection 对象是否为 null
+            if (connection == null) {
+
+                // 3、如果为 null，则从数据源获取数据库连接
+                connection = dataSource.getConnection();
+
+                // 4、获取到数据库连接后绑定到当前线程
+                threadLocal.set(connection);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+            // 为了调用工具方法方便，编译时异常不往外抛
+            // 为了不掩盖问题，捕获到的编译时异常封装为运行时异常抛出
+            throw new RuntimeException(e);
+        }
+
+        return connection;
+    }
+
+    /**
+     * 释放数据库连接
+     */
+    public static void releaseConnection(Connection connection) {
+
+        if (connection != null) {
+
+            try {
+                // 在数据库连接池中将当前连接对象标记为空闲
+                connection.close();
+
+                // 将当前数据库连接从当前线程上移除
+                threadLocal.remove();
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
+        }
+
     }
 
 }
