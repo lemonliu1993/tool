@@ -35,7 +35,7 @@ public class BaseDao<T> {
         }
     }
 
-    public List<T> getBeanList(String sql, Class<T> entityClass, Object ... parameters) {
+    public List<T> getBeanList(String sql, Class<T> entityClass, Object... parameters) {
         try {
             // 获取数据库连接
             Connection connection = JDBCUtils.getConnection();
